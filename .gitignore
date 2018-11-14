@@ -1,0 +1,9 @@
+*~
+*.sw[mnpcod]
+*.log
+*.tmp
+*.tmp.*
+$RECYCLE.BIN/
+.DS_Store
+Thumbs.db
+

@@ -1,0 +1,78 @@
+<html>
+<head>
+  <script src="4-year_planner.js"></script>
+  <style>
+    .termBox {
+      float: left;
+      width: 375px;
+      height: 150px;
+      border: 1px solid black;
+      padding: 5px;
+      margin: 5px;
+    }
+    .emptyTermBox {
+      float: left;
+      width: 375px;
+      height: 150px;
+      padding: 5px;
+      margin: 5px;
+    }
+    .yearRow {
+      overflow: hidden;
+    }
+    .credits {
+      float: right;
+      clear: right;
+    }
+    .termBox h3 {
+      margin: 0px 0px 8px 0px;
+      text-decoration: underline;
+    }
+    #electives h3 {
+      margin: 15px 0px 0px 0px;
+    }
+    #electives h4 {
+      margin: 4px 0px 0px 0px;
+    }
+    ul {
+      margin: 4px 0px 0px 0px;
+    }
+    fieldset {
+float:left;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div>Entry Year: <input type="number" id="entryYear" min="2017" step="1" style="width: 70px;" value="2017" /></div>
+  <div>Entry Term: 
+    <select id="entryTerm">
+      <option value="0">Interim</option>
+      <option value="1">Spring</option>
+      <option value="2" selected="selected">Fall</option>
+    </select>
+  </div>
+  <div style="margin: 4px 0px; overflow: hidden">
+  <form id="majorSelection">
+    <fieldset>
+    <legend>Choose your major(s)</legend> 
+    <script text="type/javascript">
+      // Create check boxes for majors
+      for (var majorID in BVU_Majors) {
+        document.write('<div>');
+        document.write('  <input type="checkbox" id="'+majorID+'" name="majors" value="'+majorID+'">');
+        document.write('  <label for="'+majorID+'">'+BVU_Majors[majorID].name+'</label>');
+        document.write('</div>');
+      }
+    </script>
+    </fieldset>
+  </form>
+  </div>
+  <div><button onClick="createWebPlan()">Create 4-year plan</button></div>
+  
+  <div id="plan"></div>
+  <div id="electives"></div>
+</body>
+</html>
+
