@@ -1,5 +1,5 @@
 // TODO: Next cool thing to do
-//   - Add check boxes next to all of the electives
+//   - Add check boxes next to all of the electives to insert them
 //   - Also an [Update] button
 //   - Selecting and updating will include those courses as an after createPlan strategy
 
@@ -7,7 +7,7 @@
 //   - People are going to want to transfer in MATH 100, MATH 145 and so on
 
 // TODO: Provide a space to submit ACT scores
-//   - NAW.... we're not screwing with gen ed stuff
+//   - No, probably just easier to tick a MATH 100 box or type in (as above)
 //   - If they want MATH 100 credit, just add it to the transfer section.
 
 function sleep(millis)
@@ -46,8 +46,9 @@ class Major {
     this.requirements = [];
   }
 
-  // Current requires that all simple reqs are added first
-  // so that complex reqs can be pruned when added
+  // Currently requires that all simple reqs are added first so that complex
+  // reqs can be pruned when added
+  // Ex: "Choose 3 of the following:" would eliminate courses already required
   addReqs(reqs) {
     for (var i=0, len=reqs.length; i < len; i++) {
       if (Array.isArray(reqs[i])) {
@@ -59,13 +60,13 @@ class Major {
           options = reqs[i][1]; 
         } else {
           // Dealing with (choose one of the following) requirement
+          // XXX: Can't this just be done with above strategy using minCredit 1?
           options = reqs[i];
         }
 
         // Assess validity of each options w.r.t. major requirements
-        // TODO: Add this functionality to a prune() function that's called
-        //       on each call to addReqs. That way the order of addition
-        //       doesn't matter. We can go back and validate complex reqs.
+        // If previously required, it wouldn't count as an elective later.
+        // Just collecting "valid options" for electives here
         for (var j=0, jlen=options.length; j < jlen; j++) {
           // Check to see if option is already a major requirement
           var valid = true;
@@ -128,7 +129,7 @@ catalog["CMSC 491"].doubleTake = true;
 
 catalog["MATH 100"]=new Course("MATH 100", "Algebra Review", "FS", 3, []);
 catalog["MATH 140"]=new Course("MATH 140", "Elementary Applied Statistics", "FS", 4, ["MATH 100"]);
-catalog["MATH 143"]=new Course("MATH 143", "Discrete Mathematics", "F", 3, ["MATH 100"]);
+catalog["MATH 143"]=new Course("MATH 143", "Discrete Mathematics", "F", 3, ["MATH 100", "MATH 160"/*HACK as recommentation*/]);
 catalog["MATH 145"]=new Course("MATH 145", "Elementary Functions", "FS", 3, ["MATH 100"]);
 catalog["MATH 160"]=new Course("MATH 160", "Calculus I: Elementary Applied Calculus", "FS", 4, ["MATH 145"]);
 catalog["MATH 161"]=new Course("MATH 161", "Calculus II: Theory and Applications", "FS", 4, ["MATH 160"]);
@@ -167,12 +168,13 @@ var CS_UpperCore = ["CMSC 321", "CMSC 331", "CMSC 360", "CMSC 432", "CMSC 480", 
 var CS_300Above = [[6,["CMSC 310", "CMSC 321", "CMSC 331", "CMSC 351", "CMSC 360", "CMSC 390", "CMSC 391", "CMSC 405", "CMSC 420", "CMSC 431", "CMSC 432", "CMSC 440", "CMSC 452", "CMSC 480", "CMSC 481", "CMSC 491"]]];
 var CS_300AboveMinor = [[6,["CMSC 310", "CMSC 321", "CMSC 331", "CMSC 351", "CMSC 360", "CMSC 390", "CMSC 391", "CMSC 405", "CMSC 420", "CMSC 431", "CMSC 432", "CMSC 440", "CMSC 452", "CMSC 491"]]];
 
+
 var BVU_Majors = [];
 
 var CS_Minor = new Major("Computer Science Minor");
 CS_Minor.addReqs(CS_Core);
 CS_Minor.addReqs(CS_300AboveMinor);
-BVU_Majors["CMSC_MINOR"] = CS_Minor;
+//BVU_Majors["CMSC_MINOR"] = CS_Minor;
 
 var CS_Systems = new Major("Computer Science - Systems Track");
 CS_Systems.addReqs(CS_Core);
@@ -196,20 +198,20 @@ BVU_Majors["CMSC_MATH"] = CS_MATH;
 
 var DATA_MAJOR = new Major("Data Science and Analytics");
 DATA_MAJOR.addReqs(["BUSN 100","CMSC 181","CMSC 182","CMSC 310","DATA 200","DATA 201","DATA 300","DATA 301","DATA 305","DATA 400","MATH 140","MATH 160","MATH 161","MATH 240","MATH 322","MATH 330","MATH 432","MGMT 205"]);
-BVU_Majors["DATA_MAJOR"] = DATA_MAJOR;
+//BVU_Majors["DATA_MAJOR"] = DATA_MAJOR;
 
 var DATA_MINOR = new Major("Data Science and Analytics Minor");
 DATA_MINOR.addReqs(["BUSN 100","CMSC 181","CMSC 182","DATA 200","DATA 201","MATH 140","MGMT 205"]);
-BVU_Majors["DATA_MINOR"] = DATA_MINOR;
+//BVU_Majors["DATA_MINOR"] = DATA_MINOR;
 
 var MATH_MAJOR = new Major("Mathematics");
 MATH_MAJOR.addReqs(["MATH 160","MATH 161","MATH 240","MATH 260","MATH 261","MATH 322","MATH 361",["MATH 433", "MATH 140"],"MATH 480"]);
 MATH_MAJOR.addReqs([[9, ["MATH 320","MATH 330","MATH 341","MATH 352","MATH 371","MATH 432","MATH 460","MATH 470"]]]);
-BVU_Majors["MATH_MAJOR"] = MATH_MAJOR;
+//BVU_Majors["MATH_MAJOR"] = MATH_MAJOR;
 
 var MATH_MINOR = new Major("Mathematics Minor");
 MATH_MINOR.addReqs(["MATH 160","MATH 161","MATH 240","MATH 260","MATH 261","MATH 361"]);
-BVU_Majors["MATH_MINOR"] = MATH_MINOR;
+//BVU_Majors["MATH_MINOR"] = MATH_MINOR;
 
 
 
@@ -242,14 +244,20 @@ function reqSatisfied(preReqList) {
       //console.log("================ SIMPLE REQ ================== looking for("+req+")");
       // Simple Req -- just find the course in the plan and return the term after its location
       var satisfied = false;
-      for(var it=entryTerm; Math.floor(it/3) <= maxYear; it++) {
-        var currTerm = it%3;
-        var currYear = Math.floor(it/3);
-        if (typeof plan[currYear] !== "undefined" && typeof plan[currYear][currTerm] !== "undefined") {
-          if (plan[currYear][currTerm].includes(req)) {
-            earliestTermList.push(it+1);
-            satisfied = true;
-            break;
+      if (transferredIn.includes(req)) {
+        earliestTermList.push(entryTerm);
+        satisfied = true;
+      }
+      else {
+        for(var it=entryTerm; Math.floor(it/3) <= maxYear; it++) {
+          var currTerm = it%3;
+          var currYear = Math.floor(it/3);
+          if (typeof plan[currYear] !== "undefined" && typeof plan[currYear][currTerm] !== "undefined") {
+            if (plan[currYear][currTerm].includes(req)) {
+              earliestTermList.push(it+1);
+              satisfied = true;
+              break;
+            }
           }
         }
       }
@@ -288,13 +296,19 @@ function reqSatisfied(preReqList) {
       if (creditsRemaining > 0)
         return -1;
     } else {
-      console.log("===== you are required to take one of the following: ["+req+"]");
+    //console.log("===== you are required to take one of the following: ["+req+"]");
       // Take one of the following
       var satisfied = false;
       for(var it=entryTerm; Math.floor(it/3) <= maxYear; it++) {
         var currTerm = it%3;
         var currYear = Math.floor(it/3);
         if (typeof plan[currYear] !== "undefined" && typeof plan[currYear][currTerm] !== "undefined") {
+          // Current term works due to transferred prereq
+          if (transferredIn.includes(req)) {
+            earliestTermList.push(entryTerm);
+            satisfied = true;
+            break;
+          }
           // Valid term with classes in it
           for(var i=0; i < req.length; i++) {
             if (plan[currYear][currTerm].includes(req[i])) {
@@ -369,7 +383,6 @@ function takeCourse(courseName, earliestTermID) {
       
       // If there is room to take the course this term
       if (plan[year][term].creditCount + catalog[courseName].credits <= maxCreditsPerTerm && termIT >= catalog[courseName].maturityNudge) {
-
         // Add course to plan
         plan[year][term].push(courseName);
         // Update credit count
@@ -385,6 +398,9 @@ function takeCourse(courseName, earliestTermID) {
 
 // Find out if a course is in the plan
 function courseAlreadyTaken(courseName) {
+  if (transferredIn.includes(courseName))
+    return true;
+
   // Identify maxYear so that we can stop iteration (no future courses planned)
   var years = Object.keys(plan);
   years = years.map(function(x){ return parseInt(x); });
@@ -429,7 +445,6 @@ function reqIsSingleCourse(req) {
 }
 
 function takePreReqs(preReqs) {
-  console.log("takePreReqs("+preReqs+")");
   // For each requirement in preReqs, find out if it is satisified
   for(var i=0; i < preReqs.length; i++) {
     var req = preReqs[i];
@@ -475,12 +490,13 @@ function createPlan() {
         // If it's a course
         if (reqIsSingleCourse(req)) {
           if (courseAlreadyTaken(req) === false) {
+            console.log("\n  Haven't yet taken ("+req+")");
             // We haven't yet taken the course
             // See if we can (or need to) take its preReqs
             takePreReqs(catalog[req].preReqs);
             takePreReqs(catalog[req].coReqs);
 
-            // Find out the earliest we can take the course relative to preReqs
+            // Find the earliest we can take the course relative to preReqs
             var earliestTerm = reqSatisfied(catalog[req].preReqs);
             if (earliestTerm !== -1) {
               var earliestCoReqTerm = reqSatisfied(catalog[req].coReqs)-1;
@@ -519,10 +535,11 @@ function createPlan() {
 var plan=[];
 
 var entryTerm = 2;
-var entryYear = 2017;
+var entryYear = 2019;
 var maxCreditsPerTerm = 16;
 
 var majors = {};
+var transferredIn = [];
 //majors["CMSC_IT"] = BVU_Majors["CMSC_IT"];
 //majors["CMSC_SYS"] = BVU_Majors["CMSC_SYS"];
 //majors["CMSC_MATH"] = BVU_Majors["CMSC_MATH"];
@@ -533,9 +550,14 @@ var majors = {};
 
 
 function createWebPlan() {
-  var sel = document.getElementById("entryTerm");
-  entryTerm = parseInt(sel.options[sel.selectedIndex].value);
+  //var sel = document.getElementById("entryTerm");
+  //entryTerm = parseInt(sel.options[sel.selectedIndex].value);
+  entryTerm = 2; // XXX: Forcing fall entry at the moment
   entryYear = parseInt(document.getElementById("entryYear").value);
+
+  transferredIn = [];
+  if (document.getElementById("tr_MATH100").checked) transferredIn.push("MATH 100");
+  if (document.getElementById("tr_MATH145").checked) transferredIn.push("MATH 145");
 
   majors = {};
   var fList = document.getElementById("majorSelection").elements;

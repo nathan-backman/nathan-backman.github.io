@@ -1,5 +1,6 @@
 <html>
 <head>
+  <title>BVU Computer Science 4-Year Plans</title>
   <script src="4-year_planner.js"></script>
   <style>
     .termBox {
@@ -44,30 +45,34 @@ float:left;
   </style>
 </head>
 <body>
-
-  <div>Entry Year: <input type="number" id="entryYear" min="2017" step="1" style="width: 70px;" value="2017" /></div>
-  <div>Entry Term: 
+  <h1>BVU Computer Science 4-Year Plans</h1>
+  <div>Entry Year: <input type="number" id="entryYear" min="2018" step="1" style="width: 70px;" value="2019" /></div>
+  <!--<div>Entry Term:
     <select id="entryTerm">
       <option value="0">Interim</option>
       <option value="1">Spring</option>
       <option value="2" selected="selected">Fall</option>
     </select>
-  </div>
+  </div>-->
   <div style="margin: 4px 0px; overflow: hidden">
   <form id="majorSelection">
     <fieldset>
-    <legend>Choose your major(s)</legend> 
+    <legend>Choose your program</legend>
     <script text="type/javascript">
       // Create check boxes for majors
       for (var majorID in BVU_Majors) {
         document.write('<div>');
-        document.write('  <input type="checkbox" id="'+majorID+'" name="majors" value="'+majorID+'">');
+        document.write('  <input type="radio" id="'+majorID+'" name="majors" value="'+majorID+'">');
         document.write('  <label for="'+majorID+'">'+BVU_Majors[majorID].name+'</label>');
         document.write('</div>');
       }
     </script>
     </fieldset>
   </form>
+  </div>
+  <div>Check the following:
+    <div><input type="checkbox" id="tr_MATH100" name="tr_MATH100"><label for="tr_MATH100">Placed out of MATH 100</label></div>
+    <div><input type="checkbox" id="tr_MATH145" name="tr_MATH145"><label for="tr_MATH145">Took pre-calc in high school (MATH 145)</label></div>
   </div>
   <div><button onClick="createWebPlan()">Create 4-year plan</button></div>
   
